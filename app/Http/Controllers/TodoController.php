@@ -14,7 +14,7 @@ class TodoController extends Controller
         $todos = Todo::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
         // dd($todos);
         //return view('todo.index', compact('todos'));
-        $todosCompleted = Todo::where('user_id', auth()->user()->id)
+        $todosCompleted = Todo::where('user_id', Auth::id())
             ->where('is_done', true)
             ->count();
         return view('todo.index', compact('todos', 'todosCompleted'));
@@ -27,14 +27,13 @@ class TodoController extends Controller
 
     public function complete(Todo $todo)
     {
-
-         if (Auth::id() == $todo->user_id) {
-             $todo->update(['is_done' => true]);
-             return redirect()->route('todo.index')->with('success', 'Todo completed successfully.');
-         } else {
-             return redirect()->route('todo.index')->with('danger', 'You are not authorized to complete this todo.');
-         }
-     }
+        if (Auth::id() == $todo->user_id) {
+            $todo->update(['is_done' => true]);
+            return redirect()->route('todo.index')->with('success', 'Todo completed successfully.');
+        } else {
+            return redirect()->route('todo.index')->with('danger', 'You are not authorized to complete this todo.');
+        }
+    }
 
     public function uncomplete(Todo $todo)
     {
@@ -48,7 +47,7 @@ class TodoController extends Controller
 
     public function edit(Todo $todo)
     {
-        if (auth()->user()->id == $todo->user_id) {
+        if (Auth::id() == $todo->user_id) {
             return view('todo.edit', compact('todo'));
         } else {
             return redirect()->route('todo.index')->with('danger', 'You are not authorized to edit this todo.');
@@ -68,7 +67,7 @@ class TodoController extends Controller
 
     public function destroy(Todo $todo)
     {
-        if (auth()->user()->id == $todo->user_id){
+        if (Auth::id() == $todo->user_id){
             $todo->delete();
             return redirect()->route('todo.index')->with('success', 'Todo deleted successfully!');
         } else {
@@ -78,7 +77,7 @@ class TodoController extends Controller
 
     public function destroyCompleted()
     {
-        $todosCompleted = Todo:: where('user_id', auth()-> user()->id)
+        $todosCompleted = Todo:: where('user_id', Auth::id())
             ->where('is_done', true)
             ->get();
         foreach ($todosCompleted as $todo) {
