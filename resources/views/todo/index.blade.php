@@ -105,7 +105,7 @@
             </div>
 
             {{-- Delete All Completed --}}
-            @if ($todosCompleted > 1)
+            @if ($todoCompleted > 1)
                 <div class="bg-white dark:bg-gray-800 shadow p-6 rounded-lg text-right">
                     <form action="{{ route('todo.deleteallcompleted') }}" method="POST" onsubmit="return confirm('Delete all completed tasks?');">
                         @csrf
