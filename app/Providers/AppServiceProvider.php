@@ -8,8 +8,8 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Laravel\Sanctum\PersonalAccessToken;
-use Laravel\Sanctum\Sanctum;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Dedoc\Scramble\Support\Generator\OpenApi;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,12 +27,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useTailwind();
-        Gate::define('admin', function ($user) {
+
+        Gate::define(ability: 'admin', callback: function ($user): bool {
             return $user->is_admin == true;
         });
-        //Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
-        Scramble::configure()->routes(function (Route $route) {
-           return Str::startsWith($route->uri, 'api/');
-        });
+
+        Scramble::configure()
+            ->routes(routeResolver: function (Route $route): bool {
+                return Str::startsWith(haystack: $route->uri, needles: 'api/');
+            })
+            ->withDocumentTransformers(cb: function (OpenApi $openApi): void {
+                $openApi->secure(
+                    securityScheme: SecurityScheme::http(scheme: 'bearer')
+                );
+            });
     }
 }
